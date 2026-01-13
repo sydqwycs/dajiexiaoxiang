@@ -30,9 +30,10 @@ export class Database {
 
   static getInstance(): Database {
     if (!Database.instance) {
-      const connectionString = process.env.DATABASE_URL;
+      // 支持多种环境变量名称（Zeabur 使用 POSTGRES_CONNECTION_STRING）
+      const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_CONNECTION_STRING;
       if (!connectionString) {
-        throw new Error('DATABASE_URL environment variable is not set');
+        throw new Error('DATABASE_URL or POSTGRES_CONNECTION_STRING environment variable is not set');
       }
       Database.instance = new Database({ connectionString });
     }
