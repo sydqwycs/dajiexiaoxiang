@@ -120,6 +120,89 @@ export function getUserPageHTML(): string {
       margin-top: 30px;
       color: #666;
     }
+    /* 自定义提示框 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      animation: fadeIn 0.3s;
+    }
+    .modal-box {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s;
+    }
+    .modal-icon {
+      font-size: 50px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    .modal-message {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .modal-btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .modal-btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    .modal-btn-secondary {
+      background: #f0f0f0;
+      color: #666;
+    }
+    .modal-btn-secondary:hover {
+      background: #e0e0e0;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 <body>
@@ -147,6 +230,43 @@ export function getUserPageJS(): string {
   return `
 let selectedOption = null;
 let currentPoll = null;
+
+// 自定义提示框函数
+function showAlert(message, type = 'info') {
+  return new Promise((resolve) => {
+    const icons = {
+      success: '✅',
+      error: '❌',
+      info: 'ℹ️',
+      warning: '⚠️'
+    };
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = \`
+      <div class="modal-box">
+        <div class="modal-icon">\${icons[type] || icons.info}</div>
+        <div class="modal-message">\${message}</div>
+        <div class="modal-buttons">
+          <button class="modal-btn modal-btn-primary" onclick="this.closest('.modal-overlay').remove()">确定</button>
+        </div>
+      </div>
+    \`;
+    
+    document.body.appendChild(overlay);
+    overlay.querySelector('.modal-btn').focus();
+    overlay.querySelector('.modal-btn').onclick = () => {
+      overlay.remove();
+      resolve(true);
+    };
+    overlay.onclick = (e) => {
+      if (e.target === overlay) {
+        overlay.remove();
+        resolve(true);
+      }
+    };
+  });
+}
 
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -194,7 +314,10 @@ function selectOption(id) {
 }
 
 async function submitVote() {
-  if (!selectedOption || !currentPoll) return alert('请选择一个选项');
+  if (!selectedOption || !currentPoll) {
+    showAlert('请选择一个选项', 'warning');
+    return;
+  }
   
   try {
     const res = await fetch('/api/votes', {
@@ -205,14 +328,14 @@ async function submitVote() {
     
     if (res.ok) {
       showFlowers();
-      alert('投票成功！');
+      await showAlert('投票成功！感谢您的参与 🌸', 'success');
       loadCurrentPoll();
     } else {
       const err = await res.json();
-      alert(err.message || '投票失败');
+      showAlert(err.message || '投票失败，请稍后重试', 'error');
     }
   } catch (err) {
-    alert('投票失败');
+    showAlert('网络错误，请检查连接后重试', 'error');
   }
 }
 
@@ -331,6 +454,89 @@ export function getAdminPageHTML(): string {
       border-radius: 10px;
     }
     .hidden { display: none; }
+    /* 自定义提示框 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      animation: fadeIn 0.3s;
+    }
+    .modal-box {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s;
+    }
+    .modal-icon {
+      font-size: 50px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    .modal-message {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .modal-btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .modal-btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    .modal-btn-secondary {
+      background: #f0f0f0;
+      color: #666;
+    }
+    .modal-btn-secondary:hover {
+      background: #e0e0e0;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 <body>
@@ -365,6 +571,77 @@ export function getAdminPageJS(): string {
   return `
 let token = localStorage.getItem('admin_token');
 
+// 自定义提示框函数
+function showAlert(message, type = 'info') {
+  return new Promise((resolve) => {
+    const icons = {
+      success: '✅',
+      error: '❌',
+      info: 'ℹ️',
+      warning: '⚠️'
+    };
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = \`
+      <div class="modal-box">
+        <div class="modal-icon">\${icons[type] || icons.info}</div>
+        <div class="modal-message">\${message}</div>
+        <div class="modal-buttons">
+          <button class="modal-btn modal-btn-primary">确定</button>
+        </div>
+      </div>
+    \`;
+    
+    document.body.appendChild(overlay);
+    const btn = overlay.querySelector('.modal-btn');
+    btn.focus();
+    btn.onclick = () => {
+      overlay.remove();
+      resolve(true);
+    };
+    overlay.onclick = (e) => {
+      if (e.target === overlay) {
+        overlay.remove();
+        resolve(true);
+      }
+    };
+  });
+}
+
+function showConfirm(message) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = \`
+      <div class="modal-box">
+        <div class="modal-icon">⚠️</div>
+        <div class="modal-message">\${message}</div>
+        <div class="modal-buttons">
+          <button class="modal-btn modal-btn-secondary" data-result="false">取消</button>
+          <button class="modal-btn modal-btn-primary" data-result="true">确定</button>
+        </div>
+      </div>
+    \`;
+    
+    document.body.appendChild(overlay);
+    overlay.querySelectorAll('.modal-btn').forEach(btn => {
+      btn.onclick = () => {
+        const result = btn.dataset.result === 'true';
+        overlay.remove();
+        resolve(result);
+      };
+    });
+    overlay.querySelector('[data-result="true"]').focus();
+    overlay.onclick = (e) => {
+      if (e.target === overlay) {
+        overlay.remove();
+        resolve(false);
+      }
+    };
+  });
+}
+
 if (token) {
   document.getElementById('login-section').classList.add('hidden');
   document.getElementById('admin-section').classList.remove('hidden');
@@ -388,10 +665,10 @@ async function login() {
       document.getElementById('admin-section').classList.remove('hidden');
       loadPolls();
     } else {
-      alert('密码错误');
+      showAlert('密码错误，请重试', 'error');
     }
   } catch (err) {
-    alert('登录失败');
+    showAlert('登录失败，请检查网络连接', 'error');
   }
 }
 
@@ -438,7 +715,8 @@ async function createPoll() {
   const options = document.getElementById('options').value.split('\\n').filter(o => o.trim());
   
   if (!title || !deadline || options.length < 2) {
-    return alert('请填写完整信息（至少2个选项）');
+    showAlert('请填写完整信息（至少2个选项）', 'warning');
+    return;
   }
   
   try {
@@ -452,20 +730,24 @@ async function createPoll() {
     });
     
     if (res.ok) {
-      alert('创建成功');
+      await showAlert('创建成功！🎉', 'success');
+      document.getElementById('title').value = '';
+      document.getElementById('deadline').value = '';
+      document.getElementById('options').value = '';
       hideCreateForm();
       loadPolls();
     } else {
       const err = await res.json();
-      alert(err.message || '创建失败');
+      showAlert(err.message || '创建失败，请重试', 'error');
     }
   } catch (err) {
-    alert('创建失败');
+    showAlert('网络错误，请检查连接后重试', 'error');
   }
 }
 
 async function deletePoll(id) {
-  if (!confirm('确定要删除这个选择吗？')) return;
+  const confirmed = await showConfirm('确定要删除这个选择吗？此操作不可恢复！');
+  if (!confirmed) return;
   
   try {
     const res = await fetch('/sydqwy/polls/' + id, {
@@ -474,13 +756,13 @@ async function deletePoll(id) {
     });
     
     if (res.ok) {
-      alert('删除成功');
+      await showAlert('删除成功！', 'success');
       loadPolls();
     } else {
-      alert('删除失败');
+      showAlert('删除失败，请重试', 'error');
     }
   } catch (err) {
-    alert('删除失败');
+    showAlert('网络错误，请检查连接后重试', 'error');
   }
 }
   `;
