@@ -79,21 +79,34 @@ export function getUserPageHTML(): string {
     }
     .btn:hover { opacity: 0.9; }
     .progress-bar {
-      height: 30px;
+      height: 25px;
       background: #eee;
-      border-radius: 15px;
+      border-radius: 12px;
       overflow: hidden;
-      margin-top: 10px;
+      margin-top: 8px;
+      position: relative;
     }
     .progress-fill {
       height: 100%;
       background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
       transition: width 0.3s;
+      border-radius: 12px;
+    }
+    .progress-info {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
+      margin-top: 5px;
+      font-size: 14px;
+      color: #666;
+    }
+    .progress-votes {
+      font-weight: 600;
+      color: #667eea;
+    }
+    .progress-percentage {
+      font-weight: 600;
+      color: #764ba2;
     }
     .message {
       padding: 15px;
@@ -297,7 +310,8 @@ async function loadCurrentPoll() {
     
     results.options.forEach(opt => {
       html += '<div class="option" onclick="selectOption(\\''+opt.id+'\\')"><div>'+opt.optionText+'</div>';
-      html += '<div class="progress-bar"><div class="progress-fill" style="width:'+(opt.percentage||0)+'%">'+(opt.voteCount||0)+' 票 ('+(opt.percentage||0)+'%)</div></div></div>';
+      html += '<div class="progress-bar"><div class="progress-fill" style="width:'+(opt.percentage||0)+'%"></div></div>';
+      html += '<div class="progress-info"><span class="progress-votes">'+(opt.voteCount||0)+' 票</span><span class="progress-percentage">'+(opt.percentage||0)+'%</span></div></div>';
     });
     
     html += '</div><button class="btn" onclick="submitVote()">提交选择</button>';
@@ -375,7 +389,8 @@ async function loadHistory() {
       html += '<p>截止时间：'+new Date(poll.deadline).toLocaleString('zh-CN')+'</p>';
       results.options.forEach(opt => {
         html += '<div style="margin:10px 0;"><div>'+opt.optionText+'</div>';
-        html += '<div class="progress-bar"><div class="progress-fill" style="width:'+(opt.percentage||0)+'%">'+(opt.voteCount||0)+' 票 ('+(opt.percentage||0)+'%)</div></div></div>';
+        html += '<div class="progress-bar"><div class="progress-fill" style="width:'+(opt.percentage||0)+'%"></div></div>';
+        html += '<div class="progress-info"><span class="progress-votes">'+(opt.voteCount||0)+' 票</span><span class="progress-percentage">'+(opt.percentage||0)+'%</span></div></div>';
       });
       html += '</div>';
     }
